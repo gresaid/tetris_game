@@ -6,6 +6,7 @@
 #include <termios.h>
 #include <time.h>
 
+#define beep()                 puts("\a")
 #define clear_screen()         puts("\033[2J\033[1;1H")
 #define move(x, y)             printf("\033[%d;%dH", y, x)
 #define hide_cursor()          puts("\033[?25l")
@@ -18,8 +19,8 @@
   sa.sa_handler = cb;                                                                                                  \
   sigaction(signo, &sa, NULL)
 
-#define columns       12
-#define rows          23
+#define columns       10
+#define rows          10
 #define boarder_size  (rows * columns)
 
 #define top_left      (-columns - 1)
@@ -31,7 +32,6 @@
 #define bottom_center (columns)
 #define bottom_right  (columns + 1)
 
-/* These can be overridden by the user. */
 #define DEFAULT_KEYS  "hlkjq"
 #define KEY_LEFT      0
 #define KEY_RIGHT     1
@@ -41,6 +41,9 @@
 
 static volatile sig_atomic_t running = 1;
 
+static struct termios savemodes;
+static int havemodes = 0;
+
 static char* keys = DEFAULT_KEYS;
 static int level = 1;
 static int points = 0;
@@ -48,10 +51,8 @@ static int lines_cleared = 0;
 static int board[boarder_size], shadow[boarder_size];
 
 static int* peek_shape;
-static int pcolor;
 static int* shape;
 static int color;
-
 static int shapes[] = {
     7,  top_left,    top_center,    middle_right,
     2, /* ""__   */
@@ -100,7 +101,7 @@ draw(int x, int y, int c) {
 }
 
 static int
-update(void) {
+update() {
   int x, y;
 
   for (y = 1; y < rows - 1; y++) {
@@ -119,7 +120,6 @@ update(void) {
   }
 
   move(26 + 28, 10);
-  printf("Keys:");
   fflush(stdout);
 
   return getchar();
@@ -143,7 +143,7 @@ place(int* s, int pos, int c) {
 }
 
 static int*
-next_shape(void) {
+next_shape() {
   int pos = rand() % 7 * 5;
   int* next = peek_shape;
   peek_shape = &shapes[pos];
@@ -153,6 +153,34 @@ next_shape(void) {
   color = next[4];
 
   return next;
+}
+
+static int
+tty_init(void) {
+  struct termios modmodes;
+
+  if (tcgetattr(fileno(stdin), &savemodes) < 0) {
+    return -1;
+  }
+
+  havemodes = 1;
+  hide_cursor();
+
+  modmodes = savemodes;
+  modmodes.c_lflag &= ~ICANON;
+  modmodes.c_lflag &= ~ECHO;
+  modmodes.c_cc[VMIN] = 1;
+  modmodes.c_cc[VTIME] = 0;
+
+  return tcsetattr(fileno(stdin), TCSANOW, &modmodes);
+}
+
+static int
+tty_exit(void) {
+  if (!havemodes) {
+    return 0;
+  }
+  return tcsetattr(fileno(stdin), TCSANOW, &savemodes);
 }
 
 static void
@@ -195,10 +223,13 @@ main(void) {
 
   ptr = board;
   for (i = boarder_size; i; i--) {
-    *ptr++ = i < 25 || i % columns < 2 ? 60 : 0;
+    *ptr++ = i < 40 || i % columns < 2 ? 60 : 0;
   }
 
   srand((unsigned int)time(NULL));
+  if (tty_init() == -1) {
+    return 1;
+  }
 
   sig_init();
   clear_screen();
@@ -214,6 +245,7 @@ main(void) {
           for (; board[++j];) {
             if (j % columns == 10) {
               lines_cleared++;
+              beep();
               for (; j % columns; board[j--] = 0)
                 ;
               for (; --j; board[j + columns] = board[j])
@@ -260,6 +292,9 @@ main(void) {
   }
 
   clear_screen();
+  if (tty_exit() == -1) {
+    return 1;
+  }
 
   return 0;
 }
