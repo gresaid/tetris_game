@@ -19,8 +19,8 @@
   sa.sa_handler = cb;                                                                                                  \
   sigaction(signo, &sa, NULL)
 
-#define columns       10
-#define rows          10
+#define columns       20
+#define rows          20
 #define boarder_size  (rows * columns)
 
 #define top_left      (-columns - 1)
@@ -159,7 +159,7 @@ static int
 tty_init(void) {
   struct termios modmodes;
 
-  if (tcgetattr(fileno(stdin), &savemodes) < 0) {
+  if (tcgetattr(fileno(stdin), &savemodes) < 1) {
     return -1;
   }
 
