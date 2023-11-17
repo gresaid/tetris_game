@@ -1,6 +1,3 @@
-//
-// Created by pfc on 14.11.23.
-//
 #include "string"
 #ifndef TETRIS_SCORE_H
 #define TETRIS_SCORE_H

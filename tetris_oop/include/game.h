@@ -3,6 +3,8 @@
 #define GAME_HEIGHT
 #define GAME_WEIGHT
 #include "shape.h"
+#include "random_util.h"
+#include "score.h"
 class game {
 private:
   int game_board[GAME_HEIGHT][GAME_HEIGHT];

@@ -1,5 +1,5 @@
 #include <iostream>
-
+#include "current_state.h"
 enum color { CLEAR = 0, BLACK = 30, RED, GREEN, YELLOW, BLUE, PURPLE, DEEP_GREEN, WHITE };
 
 class shape_point {
