@@ -1,16 +1,19 @@
+#include <cstdio>
+#include <cstdlib>
 #include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
 #include "shape_point.h"
+#define DOWN  0
+#define LEFT  1
+#define RIGHT 2
 
-class g_base {
-private:
+class game_base {
+protected:
   int x;
   int y;
-  int a[3][3];
+  int a[3][3]{};
 
 public:
-  g_base() {
+  game_base() {
     int i, j;
     x = 0;
     y = 0;
@@ -28,14 +31,14 @@ public:
   draw() {}
 
   void
-  set_locate(int a, int b) {
-    x = a;
+  set_locate(int i, int b) {
+    x = i;
     y = b;
   }
 
   void
-  get_locate(int* a, int* b) {
-    *a = x;
+  get_locate(int* pInt, int* b) const {
+    *pInt = x;
     *b = y;
   }
 
@@ -47,10 +50,10 @@ public:
   }
 };
 
-class z_graph : public g_base {
+class z_graph : public game_base {
 public:
   void
-  draw() {
+  draw() override {
     a[0][0] = 1;
     a[0][1] = 1;
     a[0][2] = 0;
@@ -63,10 +66,10 @@ public:
   }
 };
 
-class t_graph : public g_base {
+class t_graph : public game_base {
 public:
   void
-  draw() {
+  draw() override {
     a[0][0] = 1;
     a[0][1] = 1;
     a[0][2] = 1;
@@ -79,10 +82,10 @@ public:
   }
 };
 
-class o_graph : public g_base {
+class o_graph : public game_base {
 public:
   void
-  draw() {
+  draw() override {
     a[0][0] = 1;
     a[0][1] = 1;
     a[0][2] = 0;
@@ -94,14 +97,16 @@ public:
     a[2][2] = 0;
   }
 
-  virtual int
-  rotate() {}
+  int
+  rotate() override {
+    return 0;
+  }
 };
 
-class i_graph : public g_base {
+class i_graph : public game_base {
 public:
   void
-  draw() {
+  draw() override {
     a[0][0] = 0;
     a[0][1] = 1;
     a[0][2] = 0;
@@ -114,10 +119,10 @@ public:
   }
 };
 
-class l_graph : public g_base {
+class l_graph : public game_base {
 public:
   void
-  draw() {
+  draw() override {
     a[0][0] = 0;
     a[0][1] = 1;
     a[0][2] = 0;
@@ -132,84 +137,79 @@ public:
 
 class Context {
 private:
-  Gbase* gbase;
-  color clr;
+  game_base* g_base;
+  color game_color;
 
 public:
-  ~Context() { delete gbase; }
+  ~Context() { delete g_base; }
 
-  Context(char cType) {
+  explicit Context(char cType) {
     switch (cType) {
       case 'Z':
-        gbase = new z_graph();
-        clr = YELLOW;
+        g_base = new z_graph();
+        game_color = YELLOW;
         break;
       case 'T':
-        gbase = new t_graph();
-        clr = GREEN;
+        g_base = new t_graph();
+        game_color = GREEN;
         break;
       case 'O':
-        gbase = new o_graph();
-        clr = PURPLE;
+        g_base = new o_graph();
+        game_color = PURPLE;
         break;
       case 'I':
-        gbase = new i_graph();
-        clr = DEEP_GREEN;
+        g_base = new i_graph();
+        game_color = DEEP_GREEN;
         break;
       case 'L':
-        gbase = new l_graph();
-        clr = WHITE;
+        g_base = new l_graph();
+        game_color = WHITE;
         break;
       default: printf("no %c type\n", cType); break;
     }
   }
 
   int
-  move() {
-    return gbase->move(dir);
+  move(int dir) {
+    return g_base->move(dir);
   }
 
   int
   rotate() {
-    return gbase->rotate();
+    return g_base->rotate();
   }
 
   void
   draw() {
-    gbase->draw();
+    g_base->draw();
   }
 
   void
-  set_locate() {
-    gbase->set_locate(a, b);
+  set_locate(int a, int b) {
+    g_base->set_locate(a, b);
   }
 
   void
-  get_locate() {
-    gbase->get_locate(a, b);
+  get_locate(int* a, int* b) {
+    g_base->get_locate(a, b);
   }
 
   void*
   get_array() {
-    gbase->get_array();
+    g_base->get_array();
   }
 
   void
   printG(int color) {
     if (color == CLEAR) {
-      gbase->printG(CLEAR);
+      g_base->printG(CLEAR);
     } else {
-      gbase->printG(clr);
+      g_base->printG(game_color);
     }
-  }
-
-  void
-  set_color(color clr) {
-    this->clr = clr;
   }
 
   color
   get_color() {
-    return clr;
+    return game_color;
   }
 };

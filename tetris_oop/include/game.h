@@ -6,41 +6,48 @@
 #include "score.h"
 #include "shape.h"
 
+enum MARK { GAME_STOP = -1, GAME_PAUSE = 0, GAME_RUN = 1 };
+
 class game {
 private:
-  int game_board[GAME_HEIGHT][GAME_HEIGHT];
-  color game_color;
+  int board_size[GAME_HEIGHT][GAME_WEIGHT]{};
+  color p_color[24][17]{};
   Context* game_shape;
-  Context* next_shape;
-  Score game_score;
 
+  Context* next_shape{};
+  MARK mark;
+
+public:
+  int x;
+  int y;
+
+private:
+  score game_score;
+
+private:
+  bool reset_board();
   bool is_touch_bottom();
   bool is_touch_left();
   bool is_touch_right();
-  char get_shape();
+  static char get_shape();
   bool set_board();
   bool clear_board();
 
 public:
   game();
+
   ~game();
 
   void create_shape();
-  int move(int dir);
+  void move(int dir);
   void rotate();
+  void stop();
   void clear_line();
-  void print_next_shape(Context* game_shape);
+  void down(int level);
+  static void print_next_shape(Context* m_graph);
   void game_init();
-
-  int
-  get_game_weight() {
-    return GAME_WEIGHT;
-  }
-
-  int
-  get_game_height() {
-    return GAME_HEIGHT;
-  }
+  MARK get_mark();
+  void set_mark(MARK);
+  static void print_help();
 };
-
-#endif //TETRIS_GAME_H
+#endif

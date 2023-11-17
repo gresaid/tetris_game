@@ -1,10 +1,11 @@
 #include "../include/shape_point.h"
+#include <cstdio>
 
 void
 shape_point::print_shape() {
-  current_state current_state;
-  current_state.save_current();
-  current_state.move_current(x, y);
+  current_state cur;
+  cur.save_current();
+  cur.move_current(x, y);
   switch (color) {
     case BLACK: printf("\033[40;30m  \033[0m"); break;
     case RED: printf("\033[41;31m  \033[0m"); break;
@@ -17,5 +18,5 @@ shape_point::print_shape() {
     case CLEAR: printf("\033[8m  ");
     default: break;
   }
-  current_state.resume_current();
+  cur.resume_current();
 }

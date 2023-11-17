@@ -1,4 +1,4 @@
 game:
-	gcc *cc -o tetris_gv -pthread -g
+	g++ *cc -o tetris_gv -pthread -g 
 clean:
 	rm tetris_gv
