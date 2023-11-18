@@ -4,8 +4,10 @@
 #include <pthread.h>
 #include <semaphore.h>
 #include <unistd.h>
+#define BOARD_ROW 24
+#define BOARD_COL 17
 #define SPEED      500000
-#define BOARD_SIZE (17 * 24 * sizeof(int))
+#define BOARD_SIZE (BOARD_COL * BOARD_ROW * sizeof(int))
 #define SHAPE_SIZE (3 * 3 * sizeof(int))
 
 pthread_mutex_t mutex_lock; //////////////////////////////////////////////////////
